@@ -34,14 +34,14 @@ project "Visualizer"
 
 	includedirs {
 		"%{prj.name}/src",
-		"Engine/src",
-		"Engine/vendor",
-		"Engine/vendor/glm",
-		"Engine/vendor/Glad/include",
-		"Engine/vendor/GLFW/include",
-		"Engine/vendor/spdlog/include",
-		"Engine/vendor/SPSCQueue/include",
-		"Engine/vendor/imgui"
+		"%{prj.name}/vendor/Engine/Engine/src",
+		"%{prj.name}/vendor/Engine/Engine/vendor",
+		"%{prj.name}/vendor/Engine/Engine/vendor/glm",
+		"%{prj.name}/vendor/Engine/Engine/vendor/Glad/include",
+		"%{prj.name}/vendor/Engine/Engine/vendor/GLFW/include",
+		"%{prj.name}/vendor/Engine/Engine/vendor/spdlog/include",
+		"%{prj.name}/vendor/Engine/Engine/vendor/SPSCQueue/include",
+		"%{prj.name}/vendor/Engine/Engine/vendor/imgui"
 	}
 
 	links {
