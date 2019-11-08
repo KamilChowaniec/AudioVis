@@ -1,0 +1,3 @@
+[submodule "Visualizer/vendor/Engine"]
+	path = Visualizer/vendor/Engine
+	url = https://github.com/KamilChowaniec/OpenGL-Engine
