@@ -41,15 +41,25 @@ project "Visualizer"
 		"%{prj.name}/vendor/Engine/Engine/vendor/GLFW/include",
 		"%{prj.name}/vendor/Engine/Engine/vendor/spdlog/include",
 		"%{prj.name}/vendor/Engine/Engine/vendor/SPSCQueue/include",
-		"%{prj.name}/vendor/Engine/Engine/vendor/imgui"
+		"%{prj.name}/vendor/Engine/Engine/vendor/imgui",
+		"%{prj.name}/vendor/BASS/c"
+	}
+
+	libdirs{
+		"%{prj.name}/vendor/BASS/c/x64"
 	}
 
 	links {
-		"Engine"
+		"Engine",
+		"bass.lib"
 	}
 
 	defines {
 		"PROJ_NAME=\"%{string.upper(prj.name)}\""
+	}
+
+	postbuildcommands {
+		"{COPY} \"%{prj.location}vendor/BASS/x64/bass.dll\" \"%{cfg.targetdir}/\""
 	}
 
 	filter "system:windows"
