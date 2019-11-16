@@ -1,5 +1,5 @@
 #include "Window.hpp"
-#include "Audio.hpp"
+#include "Audio/Audio.hpp"
 
 int main() {
 	Window window("elo", 1280, 720);
