@@ -1,3 +1,6 @@
 [submodule "Visualizer/vendor/Engine"]
 	path = Visualizer/vendor/Engine
 	url = https://github.com/KamilChowaniec/OpenGL-Engine
+[submodule "Visualizer/vendor/yaml-cpp"]
+	path = Visualizer/vendor/yaml-cpp
+	url = https://github.com/KamilChowaniec/yaml-cpp

@@ -12,7 +12,7 @@ workspace "AudioVisualizer"
 
 group "Dependencies"
     include "Visualizer/vendor/Engine"
-
+	include "Visualizer/vendor/yaml-cpp"
 group ""
 
 project "Visualizer"
@@ -42,7 +42,8 @@ project "Visualizer"
 		"%{prj.name}/vendor/Engine/Engine/vendor/spdlog/include",
 		"%{prj.name}/vendor/Engine/Engine/vendor/SPSCQueue/include",
 		"%{prj.name}/vendor/Engine/Engine/vendor/imgui",
-		"%{prj.name}/vendor/BASS/c"
+		"%{prj.name}/vendor/BASS/c",
+		"%{prj.name}/vendor/yaml-cpp/include",
 	}
 
 	libdirs{
@@ -51,7 +52,8 @@ project "Visualizer"
 
 	links {
 		"Engine",
-		"bass.lib"
+		"bass.lib",
+		"YAML"
 	}
 
 	defines {
