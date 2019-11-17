@@ -4,3 +4,6 @@
 [submodule "Visualizer/vendor/yaml-cpp"]
 	path = Visualizer/vendor/yaml-cpp
 	url = https://github.com/KamilChowaniec/yaml-cpp
+[submodule "Visualizer/vendor/ordered_map"]
+	path = Visualizer/vendor/ordered_map
+	url = https://github.com/KamilChowaniec/ordered-map

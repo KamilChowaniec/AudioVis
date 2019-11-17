@@ -1,12 +1,6 @@
-#include "Window.hpp"
-#include "Audio/Audio.hpp"
+#include "Application.hpp"
 
 int main() {
-	Window window("elo", 1280, 720);
-	Audio::init();
-	Audio audio("res/audio/Running Away.mp3");
-	audio.play();
-	while (!window.shouldClose()) {
-		window.pollEvents();
-	}
+	Application app;
+	app.run();
 }

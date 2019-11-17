@@ -6,8 +6,11 @@
 class Audio {
 public:
 	static void init();
+	Audio();
 	Audio(std::string_view filepath);
 	
+	void loadFromFile(std::string_view filepath);
+
 	void play();
 	void restart();
 	void pause();

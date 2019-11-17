@@ -1,8 +1,28 @@
 #pragma once
-#include <glm/glm.hpp>
+#include <memory>
+#include <tsl/ordered_map.h>
+#include "Configurable.hpp"
+#include "YAMLStream.hpp"
 
 class Config {
 public:
-	glm::vec4 Color;
+	Config();
 
+	void resetToDefault();
+	void show();
+
+	void loadFromFile(std::string_view filePath);
+	void saveToFile(std::string_view filePath);
+
+	const Configurable& operator[](std::string_view name);
+private:
+	tsl::ordered_map<std::string, std::unique_ptr<Configurable>> m_Data;
+	YAMLStream m_YamlStream;
+
+	template<typename T>
+	void set(std::string_view name, T&& val) {
+		if (auto it = m_Data.find(name.data()); it != m_Data.end())
+			* ((*it).second) = std::move(val);
+		else m_Data[name.data()] = std::make_unique<T>(val);
+	}
 };

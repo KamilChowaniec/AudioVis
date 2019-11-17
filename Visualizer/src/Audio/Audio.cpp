@@ -8,8 +8,18 @@ void Audio::init()
 	}
 }
 
+Audio::Audio() : m_IsPlaying(false)
+{
+
+}
+
 Audio::Audio(std::string_view filepath)
 	: m_IsPlaying(false)
+{
+	loadFromFile(filepath);
+}
+
+void Audio::loadFromFile(std::string_view filepath)
 {
 	if (!(m_Channel = BASS_StreamCreateFile(FALSE, filepath.data(), 0, 0, BASS_SAMPLE_LOOP))
 		&& !(m_Channel = BASS_MusicLoad(FALSE, filepath.data(), 0, 0, BASS_MUSIC_RAMP | BASS_SAMPLE_LOOP, 1))) {

@@ -44,6 +44,7 @@ project "Visualizer"
 		"%{prj.name}/vendor/Engine/Engine/vendor/imgui",
 		"%{prj.name}/vendor/BASS/c",
 		"%{prj.name}/vendor/yaml-cpp/include",
+		"%{prj.name}/vendor/ordered_map/include",
 	}
 
 	libdirs{
