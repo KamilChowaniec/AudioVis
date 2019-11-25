@@ -21,9 +21,9 @@ public:
 	void setVolume(float percent);
 	float getVolume() const;
 
-	const float* getFFT();
+	const std::vector<float>& getFFT();
 private:
-	float* m_FFT;
+	std::vector<float> m_FFT;
 	bool m_IsPlaying;
 	unsigned long m_Channel;
 };

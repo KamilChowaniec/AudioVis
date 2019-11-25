@@ -29,7 +29,8 @@ project "Visualizer"
 
 	files {
 		"%{prj.name}/src/**.hpp",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/tiny-file-dialogs/tinyfiledialogs.c",
 	}
 
 	includedirs {
@@ -45,6 +46,7 @@ project "Visualizer"
 		"%{prj.name}/vendor/BASS/c",
 		"%{prj.name}/vendor/yaml-cpp/include",
 		"%{prj.name}/vendor/ordered_map/include",
+		"%{prj.name}/vendor/tiny-file-dialogs",
 	}
 
 	libdirs{
@@ -54,7 +56,7 @@ project "Visualizer"
 	links {
 		"Engine",
 		"bass.lib",
-		"YAML"
+		"YAML", 
 	}
 
 	defines {

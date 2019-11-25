@@ -8,13 +8,12 @@ void Audio::init()
 	}
 }
 
-Audio::Audio() : m_IsPlaying(false)
-{
-
-}
+Audio::Audio()
+	: m_IsPlaying(false), m_FFT(1024, 0)
+{ }
 
 Audio::Audio(std::string_view filepath)
-	: m_IsPlaying(false)
+	: Audio()
 {
 	loadFromFile(filepath);
 }
@@ -81,8 +80,8 @@ float Audio::getVolume() const
 	return volume;
 }
 
-const float* Audio::getFFT()
+const std::vector<float>& Audio::getFFT()
 {
-	BASS_ChannelGetData(m_Channel, m_FFT, BASS_DATA_FFT2048);
+	BASS_ChannelGetData(m_Channel, m_FFT.data(), BASS_DATA_FFT2048);
 	return m_FFT;
 }

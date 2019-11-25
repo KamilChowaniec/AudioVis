@@ -10,7 +10,7 @@ YAMLStream::YAMLStream(std::string_view filepath, Type flag) : m_Emitter{ std::m
 YAMLStream& YAMLStream::operator<<(const std::pair<std::string, std::unique_ptr<Configurable>>& node)
 {
 	*m_Emitter << YAML::Key << node.first;
-	*m_Emitter << YAML::Value << YAML::Flow << node.second->encode(); 
+	*m_Emitter << YAML::Value << YAML::Flow << YAML::Precision(3) << node.second->encode(); 
 	return *this;
 }
 
