@@ -1,5 +1,5 @@
 #include "Visualizer.hpp"
-#include "Config/Types/Color.hpp"
+#include "Config/Types/Vec.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 std::shared_ptr<VertexArray> Visualizer::s_FreqVa;
@@ -75,25 +75,34 @@ void Visualizer::setAspectRatio(glm::ivec2 dims)
 }
 
 Visualizer::Visualizer(const Config& cfg)
-	: m_Cfg(cfg), m_SmoothFft(1024, 0), m_SpinAngle(0), m_FreqColor(1024), m_FreqDims(1024), m_FreqRot(1024)
+	: m_Cfg(cfg), m_SmoothFft(1024, 0), m_SpinAngle(0), m_FreqCount(1024),
+	m_FreqColor(1024), m_FreqDims(1024), m_FreqRot(1024)
 { }
 
 void Visualizer::update(const std::vector<float>& fft)
 {
-	//const Color& c = m_Cfg["lineColor"].as<Color>();
-	for (int i{ 0 }; i < fft.size(); ++i) {
+	const glm::vec2& visibleFreq = m_Cfg["visibleFreq"].as<Vec2<float>>();
+	const int startFreq = visibleFreq.x * fft.size();
+	const int stopFreq = visibleFreq.y * fft.size();
+	m_FreqCount = stopFreq - startFreq;
+
+	for (int i = startFreq; i < stopFreq; ++i) {
 		float& val = m_SmoothFft[i] = 0.5f * m_SmoothFft[i] + ((1 - 0.5f) * fft[i]);
-		m_FreqDims[i] = std::move(glm::vec4{ (i / 1024.) * 2 - 1, 0, 1 / 1024., std::sqrt(val) * 3 });
-		m_FreqColor[i] = m_Cfg["lineColor"].as<Color>();;
+		m_FreqDims[i] = { ((i - startFreq) / (float)m_FreqCount) * 2 - 1, 0, 1. / m_FreqCount, std::sqrt(val) * 3 };
+		m_FreqColor[i] = m_Cfg["lineColor"].as<Color<float>>();
 		m_FreqRot[i] = 0;
 	}
-	s_FreqVa->bind();
-	s_FreqVa->getVertexBuffer(1)->updateData(m_FreqDims.data(), m_FreqDims.size() * sizeof(glm::vec4));
-	s_FreqVa->getVertexBuffer(2)->updateData(m_FreqColor.data(), m_FreqColor.size() * sizeof(glm::vec4));
-	s_FreqVa->getVertexBuffer(3)->updateData(m_FreqRot.data(), m_FreqRot.size() * sizeof(float));
+
+	if (m_FreqCount > 0) {
+		s_FreqVa->bind();
+		s_FreqVa->getVertexBuffer(1)->updateData(&m_FreqDims[startFreq], m_FreqCount * sizeof(glm::vec4));
+		s_FreqVa->getVertexBuffer(2)->updateData(&m_FreqColor[startFreq], m_FreqCount * sizeof(glm::vec4));
+		s_FreqVa->getVertexBuffer(3)->updateData(&m_FreqRot[startFreq], m_FreqCount * sizeof(float));
+	}
 }
 
 void Visualizer::show()
 {
-	Renderer::drawInstanced(s_FreqVa, s_FreqShader, 1024);
+	if(m_FreqCount > 0)
+		Renderer::drawInstanced(s_FreqVa, s_FreqShader, m_FreqCount);
 }

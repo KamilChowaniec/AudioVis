@@ -1,5 +1,7 @@
 #include "Config.hpp"
-#include "Types/Color.hpp"
+#include "Types/Vec.hpp"
+#include "Viewers/ColorPicker.hpp"
+#include "Viewers/Slider.hpp"
 #include "Logger.hpp"
 
 Config::Config()
@@ -9,8 +11,9 @@ Config::Config()
 
 void Config::resetToDefault()
 {
-	setEntry("lineColor", Color(1, 1, 1, 1));
-	setEntry("edgeColor", Color(1, 1, 1, 1));
+	setEntry("lineColor", Color<float, ColorPicker4>({ 1, 1, 1, 1 }));
+	setEntry("visibleFreq", Vec2<float, Slider2>({ 0, 1 }, {0, 1}));
+	setEntry("octaves", Number<int, Slider1>(50, { 3, 100 }));
 }
 
 void Config::show() 
@@ -18,7 +21,8 @@ void Config::show()
 	ImGui::Begin("Config");
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	showEntry("lineColor");
-
+	showEntry("visibleFreq");
+	showEntry("octaves");
 	if (ImGui::Button("Save")) {
 		saveToFile("res/config/default.yaml");
 	}
@@ -55,5 +59,7 @@ void Config::saveToFile(std::string_view filePath)
 
 void Config::showEntry(std::string_view name) const
 {
-	(*m_Data.find(name.data())).second->show(name);
+	auto it = m_Data.find(name.data());
+	ASSERT(it != m_Data.end(), std::string("Unknown entry [") + name.data() + "]!");
+	(*it).second->show(name);
 }

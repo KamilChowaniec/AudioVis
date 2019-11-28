@@ -19,6 +19,7 @@ private:
 	std::vector<float> m_FreqRot;
 	const Config& m_Cfg;
 	float m_SpinAngle;
+	unsigned int m_FreqCount;
 
 	static std::shared_ptr<VertexArray> s_FreqVa;
 	static std::shared_ptr<Shader> s_FreqShader;

@@ -8,7 +8,7 @@ public:
 	virtual ~Configurable() {};
 
 	template<typename T>
-	const T& as() const { return dynamic_cast<const T&>(*this); }
+	const T& as() const { return reinterpret_cast<const T&>(*this); }
 
 protected:
 	virtual void show(std::string_view) = 0;

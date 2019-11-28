@@ -1,2 +1,3 @@
-lineColor: [1, 1, 0.998039246, 1]
-edgeColor: [1, 1, 1, 1]
+lineColor: [0.843, 0.211, 0.211, 1]
+visibleFreq: [0.327, 0.673]
+octaves: [69]

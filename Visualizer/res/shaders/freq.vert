@@ -15,7 +15,6 @@ mat4 translate(in vec2 pos);
 
 void main(){
 	gl_Position =  translate(a_Dims.xy) * scale(a_Dims.zw) * a_Vertex;
-//	gl_Position =  a_Vertex;
 	v_Color = a_Color;
 }
 
