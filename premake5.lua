@@ -64,7 +64,7 @@ project "Visualizer"
 	}
 
 	postbuildcommands {
-		"{COPY} \"%{prj.location}vendor/BASS/x64/bass.dll\" \"%{cfg.targetdir}/\""
+		"{COPY} \"%{prj.location}vendor/BASS/x64/bass.dll\" \"%{cfg.targetdir}/\"",
 	}
 
 	filter "system:windows"

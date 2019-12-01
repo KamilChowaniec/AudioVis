@@ -1,7 +1,9 @@
 #include "Visualizer.hpp"
 #include "Config/Types/Vec.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
+static const float PI = glm::pi<float>();
 std::shared_ptr<VertexArray> Visualizer::s_FreqVa;
 std::shared_ptr<Shader> Visualizer::s_FreqShader;
 
@@ -70,6 +72,7 @@ void Visualizer::init()
 
 void Visualizer::setAspectRatio(glm::ivec2 dims)
 {
+	//dims = { 1000, 1000 };
 	s_FreqShader->bind();
 	s_FreqShader->setUniform("u_ViewProjection", glm::ortho(-dims.x / 1000.f, dims.x / 1000.f, -dims.y / 1000.f, dims.y / 1000.f));
 }
@@ -79,30 +82,92 @@ Visualizer::Visualizer(const Config& cfg)
 	m_FreqColor(1024), m_FreqDims(1024), m_FreqRot(1024)
 { }
 
+//Visualizer::logAverages(const std::vector<float>& fft, const unsigned int octaveBands) {
+//
+//}
+
 void Visualizer::update(const std::vector<float>& fft)
 {
+	// Config variables
+	const glm::vec4& lineColor = m_Cfg["lineColor"].as<Color<float>>();
 	const glm::vec2& visibleFreq = m_Cfg["visibleFreq"].as<Vec2<float>>();
+	const glm::vec2 center = { m_Cfg["centerX"].as<Number<float>>(), m_Cfg["centerY"].as<Number<float>>() };
+	const float scale = m_Cfg["scale"].as<Number<float>>();
+	const float width = m_Cfg["width"].as<Number<float>>();
+	const float smooth = m_Cfg["smoothness"].as<Number<float>>();
+	const float slope = m_Cfg["bend"].as<Number<float>>().x / 360.0f;
+	const float lineInterspace = m_Cfg["lineInterspace"].as<Number<float>>();
+	const float rotation = glm::radians<float>(m_Cfg["rotation"].as<Number<float>>().x);
+	const float innerIntensity = m_Cfg["innerIntensity"].as<Number<float>>();
+	const float outerIntensity = m_Cfg["outerIntensity"].as<Number<float>>();
+
+
 	const int startFreq = visibleFreq.x * fft.size();
 	const int stopFreq = visibleFreq.y * fft.size();
 	m_FreqCount = stopFreq - startFreq;
 
-	for (int i = startFreq; i < stopFreq; ++i) {
-		float& val = m_SmoothFft[i] = 0.5f * m_SmoothFft[i] + ((1 - 0.5f) * fft[i]);
-		m_FreqDims[i] = { ((i - startFreq) / (float)m_FreqCount) * 2 - 1, 0, 1. / m_FreqCount, std::sqrt(val) * 3 };
-		m_FreqColor[i] = m_Cfg["lineColor"].as<Color<float>>();
-		m_FreqRot[i] = 0;
+	const float rotationCos = cos(rotation);
+	const float rotationSin = sin(rotation);
+
+	const double arcAngle = 2 * PI * std::max<double>(slope, 0.001);
+	const double arcAngleInc = arcAngle / m_FreqCount;
+	const float arcRad = width / arcAngle;
+
+	double currArcAngle = (3. * PI - arcAngle) / 2.;
+
+	for (int i = startFreq; i < stopFreq; ++i, currArcAngle += arcAngleInc) {
+
+		// Smoothing out values over time
+		float& val = m_SmoothFft[i] = smooth * m_SmoothFft[i] + ((1. - smooth) * fft[i]);
+
+		float cosinus = cos(currArcAngle);
+		float sinus = sin(currArcAngle);
+
+		const float lineHeight = std::sqrt(val) * 3;
+
+		// Distance from [0,0] to center of the quad
+		double r = arcRad + lineHeight * (outerIntensity - innerIntensity) / 2.;
+
+		const float arcX = cosinus * r;
+
+		// [ quad y ]  [   keeping at one place   ]   [ changing center based on slope ]
+		// sinus * r + (arcRad - width / (2. * PI)) + (width / (2. * PI)) * (1. - slope);
+		const float arcY = sinus * r + arcRad - width * slope / (2. * PI);
+
+		// Rotating visualizer
+		const float rotX = rotationCos * arcX - rotationSin * arcY;
+		const float rotY = rotationSin * arcX + rotationCos * arcY;
+
+		const int freqIndex = i - startFreq;
+
+		const float lineWidth = (width * (1. - lineInterspace)) / m_FreqCount;
+
+		m_FreqDims[freqIndex] = {
+			rotX * scale + center.x,
+			rotY * scale + center.y,
+			lineWidth * scale,
+			(innerIntensity + outerIntensity) * lineHeight * scale
+		};
+
+		m_FreqColor[freqIndex] = lineColor;
+
+
+		m_FreqRot[freqIndex] = (slope != 0.0 ? (3. * PI / 2. - currArcAngle) : 0) - rotation;
 	}
 
-	if (m_FreqCount > 0) {
-		s_FreqVa->bind();
-		s_FreqVa->getVertexBuffer(1)->updateData(&m_FreqDims[startFreq], m_FreqCount * sizeof(glm::vec4));
-		s_FreqVa->getVertexBuffer(2)->updateData(&m_FreqColor[startFreq], m_FreqCount * sizeof(glm::vec4));
-		s_FreqVa->getVertexBuffer(3)->updateData(&m_FreqRot[startFreq], m_FreqCount * sizeof(float));
-	}
+	if (m_FreqCount > 0)
+		updateBuffers();
+}
+
+void Visualizer::updateBuffers() {
+	s_FreqVa->bind();
+	s_FreqVa->getVertexBuffer(1)->updateData(m_FreqDims.data(), m_FreqCount * sizeof(glm::vec4));
+	s_FreqVa->getVertexBuffer(2)->updateData(m_FreqColor.data(), m_FreqCount * sizeof(glm::vec4));
+	s_FreqVa->getVertexBuffer(3)->updateData(m_FreqRot.data(), m_FreqCount * sizeof(float));
 }
 
 void Visualizer::show()
 {
-	if(m_FreqCount > 0)
+	if (m_FreqCount > 0)
 		Renderer::drawInstanced(s_FreqVa, s_FreqShader, m_FreqCount);
 }

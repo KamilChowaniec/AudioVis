@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "imgui.h"
+#include "Config/FileDialog.hpp"
 
 Application::Application()
 	: ThreadedApp("Audio Visualizer", 1280, 720), m_Vis(m_Cfg)
@@ -34,5 +35,15 @@ void Application::onRender()
 
 void Application::onImGuiRender()
 {
+	ImGui::Begin("Config");
+	if (ImGui::Button("Change audio")) {
+		std::string filePath = FileDialog::chooseFile("Choose Audio", Audio::s_AvailablePatterns);
+		if (filePath.length() != 0) {
+			m_Audio.loadFromFile(filePath);
+			m_Audio.play();
+		}
+
+	}
 	m_Cfg.show();
+	ImGui::End();
 }

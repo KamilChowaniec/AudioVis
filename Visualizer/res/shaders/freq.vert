@@ -14,7 +14,7 @@ mat4 scale(in vec2 dims);
 mat4 translate(in vec2 pos);
 
 void main(){
-	gl_Position =  translate(a_Dims.xy) * scale(a_Dims.zw) * a_Vertex;
+	gl_Position = u_ViewProjection * translate(a_Dims.xy) * rotateZ(a_Rot) * scale(a_Dims.zw) * a_Vertex;
 	v_Color = a_Color;
 }
 

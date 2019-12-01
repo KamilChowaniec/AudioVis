@@ -13,6 +13,7 @@ public:
 	void show();
 
 private:
+	void updateBuffers();
 	std::vector<float> m_SmoothFft;
 	std::vector<glm::vec4> m_FreqColor;
 	std::vector<glm::vec4> m_FreqDims;

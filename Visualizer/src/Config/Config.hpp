@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <tsl/ordered_map.h>
-#include "Configurable.hpp"
+#include "Types/Configurable.hpp"
 #include "YAMLStream.hpp"
 
 class Config {

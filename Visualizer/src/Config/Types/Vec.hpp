@@ -1,5 +1,5 @@
 #pragma once
-#include "Config/Configurable.hpp"
+#include "Config/Types/Configurable.hpp"
 #include "Config/Viewers/NullViewer.hpp"
 #include "Logger.hpp"
 #include <glm/glm.hpp>
@@ -30,6 +30,10 @@ public:
 	Vec(typename std::enable_if_t<U == 1, T> val, Viewer<T>&& viewer = Viewer<T>())
 		: glm::vec<N, T>{ val }, m_Viewer{ viewer }
 	{}
+
+	template<int U = N>
+	operator std::enable_if_t<U == 1, T>() const { return x; }
+
 private:
 	Viewer<T> m_Viewer;
 
@@ -37,13 +41,22 @@ private:
 	
 	YAML::Node encode() override {
 		YAML::Node node;
-		for (int i = 0; i < N; ++i) node.push_back((*this)[i]);
+		if constexpr(N == 1) node = (*this)[0];
+		else for (int i = 0; i < N; ++i) node.push_back((*this)[i]);
 		return node;
 	}
 
 	void decode(const YAML::Node& node) override {
-		if (!node.IsSequence() || node.size() != N) 
-			LOG_ERROR("Wrong type to decode!");
-		for (int i = 0; i < N; ++i) (*this)[i] = node[i].as<T>();
+		if constexpr (N == 1)
+		{
+			if (!node.IsScalar() || node.size() != N)
+				LOG_ERROR("Wrong type to decode!");
+			(*this)[0] = node.as<T>();
+		}
+		else {
+			if (!node.IsSequence() || node.size() != N)
+				LOG_ERROR("Wrong type to decode!");
+			for (int i = 0; i < N; ++i) (*this)[i] = node[i].as<T>();
+		}
 	}
 };

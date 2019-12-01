@@ -3,6 +3,7 @@
 #include "Viewers/ColorPicker.hpp"
 #include "Viewers/Slider.hpp"
 #include "Logger.hpp"
+#include "FileDialog.hpp"
 
 Config::Config()
 {
@@ -13,26 +14,55 @@ void Config::resetToDefault()
 {
 	setEntry("lineColor", Color<float, ColorPicker4>({ 1, 1, 1, 1 }));
 	setEntry("visibleFreq", Vec2<float, Slider2>({ 0, 1 }, {0, 1}));
-	setEntry("octaves", Number<int, Slider1>(50, { 3, 100 }));
+	setEntry("bend", Number<float, Slider1>(0, { 0, 360 }));
+	setEntry("scale", Number<float, Slider1>(1, { 0, 2 }));
+	setEntry("rotation", Number<float, Slider1>(0, { 0, 360 }));
+	setEntry("centerX", Number<float, Slider1>(0, { -2, 2 }));
+	setEntry("centerY", Number<float, Slider1>(0, { -2, 2 }));
+	setEntry("width", Number<float, Slider1>(2, { 0, 4 }));
+	setEntry("lineInterspace", Number<float, Slider1>(0.25, { 0, 1 }));
+	setEntry("smoothness", Number<float, Slider1>(0.5, { 0, 1 }));
+	setEntry("innerIntensity", Number<float, Slider1>(1, { 0, 2 }));
+	setEntry("outerIntensity", Number<float, Slider1>(1, { 0, 2 }));
 }
 
 void Config::show() 
 {
-	ImGui::Begin("Config");
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	if (ImGui::Button("Save")) {
+		std::string filePath = FileDialog::saveFile("Save Config", "config.yaml", { "*.yaml" });
+		if(filePath.length() != 0)
+			saveToFile(filePath);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Load")) {
+		std::string filePath = FileDialog::chooseFile("Choose Config", { "*.yaml" });
+		if (filePath.length() != 0)
+			loadFromFile(filePath);
+	}
+	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	showEntry("lineColor");
 	showEntry("visibleFreq");
-	showEntry("octaves");
-	if (ImGui::Button("Save")) {
-		saveToFile("res/config/default.yaml");
-	}
+	showEntry("bend");
+	showEntry("scale");
+	showEntry("rotation");
+	showEntry("centerX");
+	showEntry("centerY");
+	showEntry("width");
+	showEntry("lineInterspace");
+	showEntry("smoothness");
+	showEntry("innerIntensity");
+	showEntry("outerIntensity");
 
-	ImGui::End();
+	
+
+
 }
 
 const Configurable& Config::operator[](std::string_view name) const
 {
-	return *(*m_Data.find(name.data())).second;
+	auto it = m_Data.find(name.data());
+	ASSERT(it != m_Data.end(), std::string("No entry [") + name.data() + "]!");
+	return *(*it).second;
 }
 
 void Config::loadFromFile(std::string_view filePath)

@@ -12,7 +12,6 @@ using ColorPicker4 = ColorPicker<4, T>;
 template<typename T>
 using ColorPicker3 = ColorPicker<3, T>;
 
-
 template<size_t N, typename T>
 class ColorPicker : public Viewer<T> {
 public:

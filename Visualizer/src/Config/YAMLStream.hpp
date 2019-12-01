@@ -4,7 +4,7 @@
 #include <tuple>
 #include <memory>
 #include <yaml-cpp/yaml.h>
-#include "Configurable.hpp"
+#include "Types/Configurable.hpp"
 
 class YAMLStream {
 public:

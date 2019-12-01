@@ -22,8 +22,13 @@ public:
 	float getVolume() const;
 
 	const std::vector<float>& getFFT();
+
+	static const unsigned int s_SamplingRate;
+	static const std::vector<const char*> s_AvailablePatterns;
 private:
+
 	std::vector<float> m_FFT;
 	bool m_IsPlaying;
 	unsigned long m_Channel;
+
 };
