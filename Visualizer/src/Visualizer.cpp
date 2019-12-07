@@ -18,34 +18,17 @@ void Visualizer::init()
 		  .5f, -.5f
 	};
 
-	float square2[] = {
-		 0.f, -.5f,
-		 1.f, -.5f,
-		 1.f,  .5f,
-		 0.f, -.5f,
-		 1.f,  .5f,
-		 0.f,  .5f
-	};
-
-	std::shared_ptr<VertexBuffer> vertexVb = std::make_shared<VertexBuffer>(square, 4 * 2 * sizeof(float));
-	vertexVb->setLayout({
-		{0, Shader::DataType::vec2, "a_Vertex"},
-		});
+	std::shared_ptr<VertexBuffer> vertexVb = std::make_shared<VertexBuffer>(square, 4 * 2 * sizeof(float), GL_STATIC_DRAW);
+	vertexVb->setLayout({{0, Shader::DataType::vec2, "a_Vertex"}});
 
 	std::shared_ptr<VertexBuffer> dimVb = std::make_shared<VertexBuffer>(nullptr, 1024 * sizeof(glm::vec4), GL_STREAM_DRAW);
-	dimVb->setLayout({
-		{1, Shader::DataType::vec4, "a_Dims"}
-		});
+	dimVb->setLayout({{1, Shader::DataType::vec4, "a_Dims"}});
 
 	std::shared_ptr<VertexBuffer> colorVb = std::make_shared<VertexBuffer>(nullptr, 1024 * sizeof(glm::vec4), GL_STREAM_DRAW);
-	colorVb->setLayout({
-		{2, Shader::DataType::vec4, "a_Color"}
-		});
+	colorVb->setLayout({{2, Shader::DataType::vec4, "a_Color"}});
 
 	std::shared_ptr<VertexBuffer> rotationVb = std::make_shared<VertexBuffer>(nullptr, 1024 * sizeof(float), GL_STREAM_DRAW);
-	rotationVb->setLayout({
-		{3, Shader::DataType::float_, "a_Rot"}
-		});
+	rotationVb->setLayout({{3, Shader::DataType::float_, "a_Rot"}});
 
 	s_FreqVa->addVertexBuffer(vertexVb);
 	s_FreqVa->addVertexBuffer(dimVb);
@@ -79,7 +62,7 @@ void Visualizer::setAspectRatio(glm::ivec2 dims)
 
 Visualizer::Visualizer(const Config& cfg)
 	: m_Cfg(cfg), m_SmoothFft(1024, 0), m_SpinAngle(0), m_FreqCount(1024),
-	m_FreqColor(1024), m_FreqDims(1024), m_FreqRot(1024)
+	m_FreqColor(1024), m_FreqDims(1024), m_FreqRot(1024), m_Spectrum(0,1,3)
 { }
 
 //Visualizer::logAverages(const std::vector<float>& fft, const unsigned int octaveBands) {
@@ -100,30 +83,42 @@ void Visualizer::update(const std::vector<float>& fft)
 	const float rotation = glm::radians<float>(m_Cfg["rotation"].as<Number<float>>().x);
 	const float innerIntensity = m_Cfg["innerIntensity"].as<Number<float>>();
 	const float outerIntensity = m_Cfg["outerIntensity"].as<Number<float>>();
+	const size_t count = m_Cfg["count"].as<Number<size_t>>();
 
+	m_Spectrum.setStartFreq(visibleFreq.x);
+	m_Spectrum.setEndFreq(visibleFreq.y);
+	m_Spectrum.setOctaveBandCount(count);
+	m_Spectrum.calculate(fft);
 
-	const int startFreq = visibleFreq.x * fft.size();
-	const int stopFreq = visibleFreq.y * fft.size();
-	m_FreqCount = stopFreq - startFreq;
+	const int startFreq = 0;
+	const int stopFreq = m_Spectrum.size();
+	m_FreqCount = count;
 
 	const float rotationCos = cos(rotation);
 	const float rotationSin = sin(rotation);
 
 	const double arcAngle = 2 * PI * std::max<double>(slope, 0.001);
-	const double arcAngleInc = arcAngle / m_FreqCount;
+	const double arcAngleInc = arcAngle / (m_FreqCount - (1 - slope));
 	const float arcRad = width / arcAngle;
 
 	double currArcAngle = (3. * PI - arcAngle) / 2.;
 
+	if (m_FreqCount > m_FreqDims.size()) {
+		m_SmoothFft.resize(m_FreqCount);
+		m_FreqDims.resize(m_FreqCount);
+		m_FreqColor.resize(m_FreqCount);
+		m_FreqRot.resize(m_FreqCount);
+	}
+
 	for (int i = startFreq; i < stopFreq; ++i, currArcAngle += arcAngleInc) {
 
 		// Smoothing out values over time
-		float& val = m_SmoothFft[i] = smooth * m_SmoothFft[i] + ((1. - smooth) * fft[i]);
+		float& val = m_SmoothFft[i] = smooth * m_SmoothFft[i] + ((1. - smooth) * m_Spectrum[i]);
 
 		float cosinus = cos(currArcAngle);
 		float sinus = sin(currArcAngle);
 
-		const float lineHeight = std::sqrt(val) * 3;
+		const float lineHeight = std::sqrt(val);
 
 		// Distance from [0,0] to center of the quad
 		double r = arcRad + lineHeight * (outerIntensity - innerIntensity) / 2.;
@@ -140,7 +135,7 @@ void Visualizer::update(const std::vector<float>& fft)
 
 		const int freqIndex = i - startFreq;
 
-		const float lineWidth = (width * (1. - lineInterspace)) / m_FreqCount;
+		const float lineWidth = (width * (1. - lineInterspace)) / (m_FreqCount - (1 - slope));
 
 		m_FreqDims[freqIndex] = {
 			rotX * scale + center.x,
@@ -166,8 +161,12 @@ void Visualizer::updateBuffers() {
 	s_FreqVa->getVertexBuffer(3)->updateData(m_FreqRot.data(), m_FreqCount * sizeof(float));
 }
 
-void Visualizer::show()
+void Visualizer::render()
 {
+	//m_FreqDims[0] = { 0, 0, 1, 1 };
+	//updateBuffers();
+	//Renderer::draw(s_FreqVa, s_FreqShader);
+
 	if (m_FreqCount > 0)
 		Renderer::drawInstanced(s_FreqVa, s_FreqShader, m_FreqCount);
 }

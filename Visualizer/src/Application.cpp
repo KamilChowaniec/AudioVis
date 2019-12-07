@@ -3,7 +3,7 @@
 #include "Config/FileDialog.hpp"
 
 Application::Application()
-	: ThreadedApp("Audio Visualizer", 1280, 720), m_Vis(m_Cfg)
+	: ThreadedApp("Audio Visualizer", 1280, 720), m_Vis(m_Cfg), m_Player(m_Audio, {50, 650, 1180, 10})
 {
 	Audio::init();
 	Visualizer::init();
@@ -23,14 +23,20 @@ void Application::callbackSetup()
 	m_Timer.addTask(25ms, [this]() {m_Vis.update(m_Audio.getFFT()); }, true);
 }
 
+void Application::onEvent(Event& e)
+{
+	m_Player.onEvent(e);
+}
+
 void Application::onUpdate()
 {
+	m_Player.onUpdate();
 }
 
 void Application::onRender()
 {
 	Renderer::clear();
-	m_Vis.show();
+	m_Vis.render();
 }
 
 void Application::onImGuiRender()
@@ -42,8 +48,8 @@ void Application::onImGuiRender()
 			m_Audio.loadFromFile(filePath);
 			m_Audio.play();
 		}
-
 	}
-	m_Cfg.show();
+	m_Cfg.renderImGui();
 	ImGui::End();
+	m_Player.renderImGui();
 }

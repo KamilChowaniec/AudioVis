@@ -21,6 +21,11 @@ public:
 	void setVolume(float percent);
 	float getVolume() const;
 
+	void setPosition(float percent);
+	float getPosition();
+
+	double getLength();
+
 	const std::vector<float>& getFFT();
 
 	static const unsigned int s_SamplingRate;
@@ -28,6 +33,7 @@ public:
 private:
 
 	std::vector<float> m_FFT;
+	long m_Length;
 	bool m_IsPlaying;
 	unsigned long m_Channel;
 

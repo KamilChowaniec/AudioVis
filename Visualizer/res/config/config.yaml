@@ -1,0 +1,13 @@
+lineColor: [1, 0, 1, 1]
+visibleFreq: [0.383, 0.471]
+octaves: 1
+bend: 0
+scale: 2
+rotation: 265
+centerX: 0
+centerY: 0
+width: 4
+lineInterspace: 0.25
+smoothness: 0.5
+innerIntensity: 1
+outerIntensity: 1

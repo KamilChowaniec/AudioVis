@@ -23,7 +23,7 @@ Audio::Audio(std::string_view filepath)
 
 void Audio::loadFromFile(std::string_view filepath)
 {
-	if (m_Channel != 0){
+	if (m_Channel != 0) {
 		stop();
 		BASS_StreamFree(m_Channel);
 	}
@@ -32,38 +32,32 @@ void Audio::loadFromFile(std::string_view filepath)
 		LOG_ERROR("Can't open audio file: {0}. Error code: {1}", filepath, BASS_ErrorGetCode());
 	}
 
-	setVolume(0.1);
+	setVolume(0.5);
+	m_Length = BASS_ChannelGetLength(m_Channel, BASS_POS_BYTE);
 }
 
 void Audio::play()
 {
-	if (!BASS_ChannelPlay(m_Channel, false)) {
-		LOG_ERROR("Can't start audio. Error code: {0}", BASS_ErrorGetCode());
-	}
+	if (!BASS_ChannelPlay(m_Channel, false)) LOG_ERROR("Can't start audio. Error code: {0}", BASS_ErrorGetCode());
+
 	else m_IsPlaying = true;
 }
 
 void Audio::restart() {
-	if (!BASS_ChannelPlay(m_Channel, true)) {
-		LOG_ERROR("Can't restart audio. Error code: {0}", BASS_ErrorGetCode());
-	}
+	if (!BASS_ChannelPlay(m_Channel, true)) LOG_ERROR("Can't restart audio. Error code: {0}", BASS_ErrorGetCode());
 	else m_IsPlaying = true;
 }
 
 void Audio::pause()
 {
-	if (!BASS_ChannelPause(m_Channel)) {
-		LOG_ERROR("Can't pause audio. Error code: {0}", BASS_ErrorGetCode());
-	}
-	else m_IsPlaying = true;
+	if (!BASS_ChannelPause(m_Channel)) LOG_ERROR("Can't pause audio. Error code: {0}", BASS_ErrorGetCode());
+	else m_IsPlaying = false;
 }
 
 void Audio::stop()
 {
-	if (!BASS_ChannelStop(m_Channel)) {
-		LOG_ERROR("Can't stop audio. Error code: {0}", BASS_ErrorGetCode());
-	}
-	else m_IsPlaying = true;
+	if (!BASS_ChannelStop(m_Channel)) LOG_ERROR("Can't stop audio. Error code: {0}", BASS_ErrorGetCode());
+	else m_IsPlaying = false;
 }
 
 bool Audio::isPlaying() const
@@ -73,18 +67,29 @@ bool Audio::isPlaying() const
 
 void Audio::setVolume(float level)
 {
-	if (!BASS_ChannelSetAttribute(m_Channel, BASS_ATTRIB_VOL, level)) {
-		LOG_ERROR("Can't change volume. Error code: {0}", BASS_ErrorGetCode());
-	}
+	if (!BASS_ChannelSetAttribute(m_Channel, BASS_ATTRIB_VOL, level)) LOG_ERROR("Can't change volume. Error code: {0}", BASS_ErrorGetCode());
 }
 
 float Audio::getVolume() const
 {
 	float volume;
-	if (!BASS_ChannelGetAttribute(m_Channel, BASS_ATTRIB_VOL, &volume)) {
-		LOG_ERROR("Can't get volume level. Error code: {0}", BASS_ErrorGetCode());
-	}
+	if (!BASS_ChannelGetAttribute(m_Channel, BASS_ATTRIB_VOL, &volume)) LOG_ERROR("Can't get volume level. Error code: {0}", BASS_ErrorGetCode());
 	return volume;
+}
+
+void Audio::setPosition(float percent)
+{
+	BASS_ChannelSetPosition(m_Channel, m_Length * percent, BASS_POS_BYTE);
+}
+
+float Audio::getPosition()
+{
+	return m_Length != 0 ? BASS_ChannelGetPosition(m_Channel, BASS_POS_BYTE) / (double) m_Length : 0;
+}
+
+double Audio::getLength()
+{
+	return BASS_ChannelBytes2Seconds(m_Channel, m_Length);
 }
 
 const std::vector<float>& Audio::getFFT()

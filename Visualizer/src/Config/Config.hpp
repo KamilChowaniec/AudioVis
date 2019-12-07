@@ -9,7 +9,7 @@ public:
 	Config();
 
 	void resetToDefault();
-	void show();
+	void renderImGui();
 
 	void loadFromFile(std::string_view filePath);
 	void saveToFile(std::string_view filePath);

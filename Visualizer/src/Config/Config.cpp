@@ -14,6 +14,7 @@ void Config::resetToDefault()
 {
 	setEntry("lineColor", Color<float, ColorPicker4>({ 1, 1, 1, 1 }));
 	setEntry("visibleFreq", Vec2<float, Slider2>({ 0, 1 }, {0, 1}));
+	setEntry("count", Number<size_t, Slider1>(100L, { 3L, 500L }));
 	setEntry("bend", Number<float, Slider1>(0, { 0, 360 }));
 	setEntry("scale", Number<float, Slider1>(1, { 0, 2 }));
 	setEntry("rotation", Number<float, Slider1>(0, { 0, 360 }));
@@ -26,7 +27,7 @@ void Config::resetToDefault()
 	setEntry("outerIntensity", Number<float, Slider1>(1, { 0, 2 }));
 }
 
-void Config::show() 
+void Config::renderImGui() 
 {
 	if (ImGui::Button("Save")) {
 		std::string filePath = FileDialog::saveFile("Save Config", "config.yaml", { "*.yaml" });
@@ -39,9 +40,10 @@ void Config::show()
 		if (filePath.length() != 0)
 			loadFromFile(filePath);
 	}
-	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	showEntry("lineColor");
 	showEntry("visibleFreq");
+	showEntry("count");
 	showEntry("bend");
 	showEntry("scale");
 	showEntry("rotation");
@@ -52,10 +54,6 @@ void Config::show()
 	showEntry("smoothness");
 	showEntry("innerIntensity");
 	showEntry("outerIntensity");
-
-	
-
-
 }
 
 const Configurable& Config::operator[](std::string_view name) const
