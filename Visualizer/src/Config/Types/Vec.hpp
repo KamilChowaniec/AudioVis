@@ -32,7 +32,7 @@ public:
 	{}
 
 	template<int U = N>
-	operator std::enable_if_t<U == 1, T>() const { return x; }
+	operator std::enable_if_t<U == 1, T>() const { return 0; }
 
 private:
 	Viewer<T> m_Viewer;

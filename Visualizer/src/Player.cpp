@@ -12,12 +12,12 @@ void Player::onUpdate()
 		m_Progress = m_Audio.getPosition();
 }
 
-void Player::onEvent(Event& e)
+void Player::onEvent(const Event& e)
 {
-	e.dispatch<MousePressEvent>([this](MousePressEvent& e) { onMousePressEvent(e); });
+	e.dispatch<const MousePressEvent>([this](const MousePressEvent& e) { this->onMousePressEvent(e); });
 }
 
-void Player::onMousePressEvent(MousePressEvent& e)
+void Player::onMousePressEvent(const MousePressEvent& e)
 {
 	LOG_TRACE("YES");
 	if (e.button == 0)

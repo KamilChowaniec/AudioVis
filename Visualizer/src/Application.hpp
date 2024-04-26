@@ -12,7 +12,7 @@ public:
 private:
 	void callbackSetup();
 
-	void onEvent(Event& e) override;
+	void onEvent(const Event& e) override;
 	void onUpdate() override;
 	void onRender() override;
 	void onImGuiRender() override;

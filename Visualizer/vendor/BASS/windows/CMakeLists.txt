@@ -1,0 +1,18 @@
+
+if(CMAKE_SIZEOF_VOID_P STREQUAL "4")
+    set(_arch_subdir "")
+elseif(CMAKE_SIZEOF_VOID_P STREQUAL "8")
+    set(_arch_subdir "x64/")
+endif()
+
+add_library(BASS SHARED IMPORTED GLOBAL)
+set_target_properties(BASS
+    PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/c"
+        IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/c/${_arch_subdir}bass.lib"
+        IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/${_arch_subdir}bass.dll"
+        COMPATIBLE_INTERFACE_BOOL "BASS_SHARED"
+        INTERFACE_BASS_SHARED "ON"
+        COMPATIBLE_INTERFACE_STRING "BASS_VERSION"
+        INTERFACE_BASS_VERSION "BASS24"
+)

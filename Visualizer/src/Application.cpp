@@ -23,7 +23,7 @@ void Application::callbackSetup()
 	m_Timer.addTask(25ms, [this]() {m_Vis.update(m_Audio.getFFT()); }, true);
 }
 
-void Application::onEvent(Event& e)
+void Application::onEvent(const Event& e)
 {
 	m_Player.onEvent(e);
 }

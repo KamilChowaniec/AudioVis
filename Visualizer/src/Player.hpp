@@ -10,7 +10,7 @@ public:
 
 	void onUpdate();
 
-	void onEvent(Event& e);
+	void onEvent(const Event& e);
 	void renderImGui();
 
 	void hide();
@@ -21,7 +21,7 @@ public:
 
 	void audioChanged();
 private:
-	void onMousePressEvent(MousePressEvent& e);
+	void onMousePressEvent(const MousePressEvent& e);
 
 	glm::vec4 m_Dims;
 	Audio& m_Audio;

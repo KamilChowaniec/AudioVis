@@ -21,11 +21,11 @@ public:
 	{ }
 
 	inline void show(std::string_view name, T* first) {
-		if constexpr (N == 1)
-			ImGui::SmoothSlider<T>(name.data(), first, m_Min, m_Max);
-		else if constexpr (N == 2)
-			ImGui::RangeSlider<T>(name.data(), first, m_Min, m_Max);
-		else ASSERT(false, "Slider can have only 1 or 2 elements!");
+		// if constexpr (N == 1)
+		// 	ImGui::SmoothSlider<T>(name.data(), first, m_Min, m_Max);
+		// else if constexpr (N == 2)
+		// 	ImGui::RangeSlider<T>(name.data(), first, m_Min, m_Max);
+		// else ASSERT(false, "Slider can have only 1 or 2 elements!");
 	}
 private:
 	T m_Min, m_Max;

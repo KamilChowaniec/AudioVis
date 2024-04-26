@@ -38,25 +38,25 @@ void Audio::loadFromFile(std::string_view filepath)
 
 void Audio::play()
 {
-	if (!BASS_ChannelPlay(m_Channel, false)) LOG_ERROR("Can't start audio. Error code: {0}", BASS_ErrorGetCode());
+	if (!BASS_ChannelPlay(m_Channel, false)) {LOG_ERROR("Can't start audio. Error code: {0}", BASS_ErrorGetCode());}
 
 	else m_IsPlaying = true;
 }
 
 void Audio::restart() {
-	if (!BASS_ChannelPlay(m_Channel, true)) LOG_ERROR("Can't restart audio. Error code: {0}", BASS_ErrorGetCode());
+	if (!BASS_ChannelPlay(m_Channel, true)) {LOG_ERROR("Can't restart audio. Error code: {0}", BASS_ErrorGetCode());}
 	else m_IsPlaying = true;
 }
 
 void Audio::pause()
 {
-	if (!BASS_ChannelPause(m_Channel)) LOG_ERROR("Can't pause audio. Error code: {0}", BASS_ErrorGetCode());
+	if (!BASS_ChannelPause(m_Channel)) {LOG_ERROR("Can't pause audio. Error code: {0}", BASS_ErrorGetCode());}
 	else m_IsPlaying = false;
 }
 
 void Audio::stop()
 {
-	if (!BASS_ChannelStop(m_Channel)) LOG_ERROR("Can't stop audio. Error code: {0}", BASS_ErrorGetCode());
+	if (!BASS_ChannelStop(m_Channel)) {LOG_ERROR("Can't stop audio. Error code: {0}", BASS_ErrorGetCode());}
 	else m_IsPlaying = false;
 }
 
@@ -67,13 +67,13 @@ bool Audio::isPlaying() const
 
 void Audio::setVolume(float level)
 {
-	if (!BASS_ChannelSetAttribute(m_Channel, BASS_ATTRIB_VOL, level)) LOG_ERROR("Can't change volume. Error code: {0}", BASS_ErrorGetCode());
+	if (!BASS_ChannelSetAttribute(m_Channel, BASS_ATTRIB_VOL, level)) {LOG_ERROR("Can't change volume. Error code: {0}", BASS_ErrorGetCode());}
 }
 
 float Audio::getVolume() const
 {
 	float volume;
-	if (!BASS_ChannelGetAttribute(m_Channel, BASS_ATTRIB_VOL, &volume)) LOG_ERROR("Can't get volume level. Error code: {0}", BASS_ErrorGetCode());
+	if (!BASS_ChannelGetAttribute(m_Channel, BASS_ATTRIB_VOL, &volume)) {LOG_ERROR("Can't get volume level. Error code: {0}", BASS_ErrorGetCode());}
 	return volume;
 }
 

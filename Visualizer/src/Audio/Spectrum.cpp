@@ -1,6 +1,7 @@
 #include "Spectrum.hpp"
 #include "Audio.hpp"
 #include <algorithm>
+#include <cmath>
 
 #undef min
 #undef max
